@@ -215,6 +215,7 @@ void MainWindow::dropEvent(QDropEvent *event)
                 }
             }
         }
+        event->acceptProposedAction();
     }
 }
 
