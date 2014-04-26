@@ -21,6 +21,7 @@
 #include "ui_mainwindow.h"
 #include "script.h"
 #include <QDesktopWidget>
+#include <QGraphicsSceneMouseEvent>
 #include <QDragEnterEvent>
 #include <QUrl>
 #include <QSettings>
