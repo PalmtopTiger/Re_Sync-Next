@@ -3,6 +3,7 @@
 
 #include "logic.h"
 #include <QMainWindow>
+#include <QSettings>
 #include <QGraphicsItem>
 
 
@@ -87,6 +88,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    QSettings _settings;
     uchar _openState;
     FileStruct _sync, _desync;
     GraphStruct _result;

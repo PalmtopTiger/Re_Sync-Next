@@ -34,11 +34,17 @@
 
 QString UrlToPath(const QUrl &url);
 
-const QString DEFAULT_DIR_KEY = "DefaultDir";
 const qreal HEIGHT = 50.0, SCALE = 0.002;
 const QRectF DEFAULT_RECT(0.0, 0.0, 1.0, HEIGHT * 3.0 + 20.0);
 const QStringList FILETYPES = QStringList() << "ass" << "ssa" << "srt";
 const QString FILETYPES_FILTER = "Субтитры (*." + FILETYPES.join(" *.") + ")";
+const QString DEFAULT_DIR_KEY   = "DefaultDir",
+              MIN_DURATION_KEY  = "MinDuration",
+              MAX_OFFSET_KEY    = "MaxOffset",
+              MAX_DESYNC_KEY    = "MaxDesync",
+              MAX_SHIFT_KEY     = "MaxShift",
+              SKIP_COMMENTS_KEY = "SkipComments",
+              SKIP_LYRICS_KEY   = "SkipLyrics";
 
 
 class GraphicsEventGroupItem : public QGraphicsItemGroup
@@ -155,6 +161,13 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->spinMinDuration->setValue(_settings.value(MIN_DURATION_KEY, ui->spinMinDuration->value()).toInt());
+    ui->spinMaxOffset  ->setValue(_settings.value(MAX_OFFSET_KEY,   ui->spinMaxOffset->value()).toInt());
+    ui->spinMaxDesync  ->setValue(_settings.value(MAX_DESYNC_KEY,   ui->spinMaxDesync->value()).toInt());
+    ui->spinMaxShift   ->setValue(_settings.value(MAX_SHIFT_KEY,    ui->spinMaxShift->value()).toInt());
+    ui->chbSkipComments->setChecked(_settings.value(SKIP_COMMENTS_KEY, ui->chbSkipComments->isChecked()).toBool());
+    ui->chbSkipLyrics  ->setChecked(_settings.value(SKIP_LYRICS_KEY,   ui->chbSkipLyrics->isChecked()).toBool());
+
     _sync.position      = 0;
     _sync.title         = "Синхронные";
     _sync.borderColor   = "#197F3B";
@@ -184,6 +197,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    _settings.setValue(MIN_DURATION_KEY,  ui->spinMinDuration->value());
+    _settings.setValue(MAX_OFFSET_KEY,    ui->spinMaxOffset->value());
+    _settings.setValue(MAX_DESYNC_KEY,    ui->spinMaxDesync->value());
+    _settings.setValue(MAX_SHIFT_KEY,     ui->spinMaxShift->value());
+    _settings.setValue(SKIP_COMMENTS_KEY, ui->chbSkipComments->isChecked());
+    _settings.setValue(SKIP_LYRICS_KEY,   ui->chbSkipLyrics->isChecked());
+
     delete ui;
 }
 
@@ -222,28 +242,26 @@ void MainWindow::dropEvent(QDropEvent *event)
 
 void MainWindow::on_btOpenSynced_clicked()
 {
-    QSettings settings;
     QString fileName = QFileDialog::getOpenFileName(this,
                                                     "Выберите файл",
-                                                    settings.value(DEFAULT_DIR_KEY).toString(),
+                                                    _settings.value(DEFAULT_DIR_KEY).toString(),
                                                     FILETYPES_FILTER);
 
     if (fileName.isEmpty()) return;
-    settings.setValue(DEFAULT_DIR_KEY, QFileInfo(fileName).absolutePath());
+    _settings.setValue(DEFAULT_DIR_KEY, QFileInfo(fileName).absolutePath());
 
     this->openFile(fileName, _sync);
 }
 
 void MainWindow::on_btOpenDesynced_clicked()
 {
-    QSettings settings;
     QString fileName = QFileDialog::getOpenFileName(this,
                                                     "Выберите файл",
-                                                    settings.value(DEFAULT_DIR_KEY).toString(),
+                                                    _settings.value(DEFAULT_DIR_KEY).toString(),
                                                     FILETYPES_FILTER);
 
     if (fileName.isEmpty()) return;
-    settings.setValue(DEFAULT_DIR_KEY, QFileInfo(fileName).absolutePath());
+    _settings.setValue(DEFAULT_DIR_KEY, QFileInfo(fileName).absolutePath());
 
     this->openFile(fileName, _desync);
 }
