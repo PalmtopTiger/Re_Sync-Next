@@ -4,25 +4,25 @@
 #
 #-------------------------------------------------
 
-QT       += core gui svg
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
-TARGET = Re_Sync
 TEMPLATE = app
 
+QT += core gui widgets svg
 
-SOURCES += main.cpp\
-           mainwindow.cpp \
-           script.cpp \
-           logic.cpp
+SOURCES += \
+    main.cpp \
+    mainwindow.cpp \
+    script.cpp \
+    logic.cpp
 
-HEADERS  += mainwindow.h \
-            script.h \
-            logic.h
+HEADERS += \
+    mainwindow.h \
+    script.h \
+    logic.h
 
-FORMS    += mainwindow.ui
+FORMS += mainwindow.ui
 
 RESOURCES += Re_Sync.qrc
 
 RC_FILE = Re_Sync.rc
+
+TARGET = Re_Sync
