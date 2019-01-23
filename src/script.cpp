@@ -198,9 +198,9 @@ QString Style::generate(const ScriptType type) const
         list.append( QString::number(outline, 'g', 10) );
         list.append( QString::number(shadow,  'g', 10) );
 
-        if (SCR_SSA == type && alignment > 0 && alignment < sizeof(AlignmentASS))
+        if (SCR_SSA == type && alignment > 0 && alignment < AlignmentASS.length())
         {
-            list.append( QString::number(AlignmentASS[alignment]) );
+            list.append( QString::number(AlignmentASS.at(alignment)) );
         }
         else
         {
@@ -558,7 +558,7 @@ bool ParseSSA(QTextStream& in, Script& script)
                         tempStr = tempList.first().trimmed();
                         if ( tempStr.startsWith("&H") )
                         {
-                            ptr->primaryColour = tempStr.mid(2).toUInt(NULL, 16);
+                            ptr->primaryColour = tempStr.mid(2).toUInt(nullptr, 16);
                         }
                         else
                         {
@@ -573,7 +573,7 @@ bool ParseSSA(QTextStream& in, Script& script)
                         tempStr = tempList.first().trimmed();
                         if ( tempStr.startsWith("&H") )
                         {
-                            ptr->secondaryColour = tempStr.mid(2).toUInt(NULL, 16);
+                            ptr->secondaryColour = tempStr.mid(2).toUInt(nullptr, 16);
                         }
                         else
                         {
@@ -588,7 +588,7 @@ bool ParseSSA(QTextStream& in, Script& script)
                         tempStr = tempList.first().trimmed();
                         if ( tempStr.startsWith("&H") )
                         {
-                            ptr->outlineColour = tempStr.mid(2).toUInt(NULL, 16);
+                            ptr->outlineColour = tempStr.mid(2).toUInt(nullptr, 16);
                         }
                         else
                         {
@@ -603,7 +603,7 @@ bool ParseSSA(QTextStream& in, Script& script)
                         tempStr = tempList.first().trimmed();
                         if ( tempStr.startsWith("&H") )
                         {
-                            ptr->backColour = tempStr.mid(2).toUInt(NULL, 16);
+                            ptr->backColour = tempStr.mid(2).toUInt(nullptr, 16);
                         }
                         else
                         {
@@ -696,9 +696,9 @@ bool ParseSSA(QTextStream& in, Script& script)
                     if (!tempList.isEmpty())
                     {
                         ptr->alignment = tempList.first().trimmed().toUShort();
-                        if (SCR_SSA == type && ptr->alignment > 0 && ptr->alignment < sizeof(Line::AlignmentSSA))
+                        if (SCR_SSA == type && ptr->alignment > 0 && ptr->alignment < Line::AlignmentSSA.length())
                         {
-                            ptr->alignment = Line::AlignmentSSA[ptr->alignment];
+                            ptr->alignment = Line::AlignmentSSA.at(ptr->alignment);
                         }
 
                         if (ptr->alignment < 1 || ptr->alignment > 9)
@@ -898,9 +898,6 @@ bool ParseSSA(QTextStream& in, Script& script)
                 script.graphics.append(new Line::Base(line));
             }
             break;
-
-        default:
-            return false;
         }
     }
 
@@ -996,9 +993,6 @@ bool ParseSRT(QTextStream& in, Script& script)
                 tempList.append(line);
             }
             break;
-
-        default:
-            return false;
         }
     }
     if (!tempList.isEmpty())

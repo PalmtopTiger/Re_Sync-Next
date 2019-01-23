@@ -13,7 +13,7 @@ public:
     GraphStruct() :
         position(0u),
         connected(false),
-        graph(NULL)
+        graph(nullptr)
     {}
 
     uint position;
@@ -29,7 +29,7 @@ public:
 
     void clear()
     {
-        if (NULL != this->graph)
+        if (nullptr != this->graph)
         {
             foreach (QGraphicsItem *item, this->items)
             {
@@ -39,7 +39,7 @@ public:
             this->items.clear();
 
             delete this->graph;
-            this->graph = NULL;
+            this->graph = nullptr;
         }
 
         this->groups.clear();
@@ -76,7 +76,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
     
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
@@ -97,7 +97,7 @@ private:
     void dropEvent(QDropEvent *event);
 
     void openFile(const QString &fileName, FileStruct &obj);
-    void drawGraph(GraphStruct &obj, const DesyncGroupList * const highligted = NULL);
+    void drawGraph(GraphStruct &obj, const DesyncGroupList * const highligted = nullptr);
 };
 
 #endif // MAINWINDOW_H

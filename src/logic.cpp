@@ -273,13 +273,11 @@ void GroupEvents(const EventPtrList& constEvents, EventGroupList& groups, const 
 //
 void LCS(const EventGroupList& sync, const EventGroupList& desync, DesyncGroupList& result, const int maxDesync)
 {
-    const size_t max_i = sync.length(),
-                 max_j = desync.length();
-    size_t i, j;
-    int syncOffset, desyncOffset;
+    const int max_i = sync.length(), max_j = desync.length();
+    int i, j, syncOffset, desyncOffset;
 
     // Построение таблицы
-    QVector< QVector<size_t> > maxLen(sync.length() + 1);
+    QVector< QVector<int> > maxLen(sync.length() + 1);
     for (i = 0; i <= max_i; ++i)
     {
         maxLen[i].resize(desync.length() + 1);
@@ -296,9 +294,9 @@ void LCS(const EventGroupList& sync, const EventGroupList& desync, DesyncGroupLi
         {
             for (j = desync.length() - 1; j >= 0; --j)
             {
-                syncOffset = i > 0 ? sync[i].start() - sync[i - 1].start() : 0;
+                syncOffset = i > 0 ? static_cast<int>(sync[i].start()) - static_cast<int>(sync[i - 1].start()) : 0;
                 if (syncOffset < 0) syncOffset = 0;
-                desyncOffset = j > 0 ? desync[j].start() - desync[j - 1].start() : 0;
+                desyncOffset = j > 0 ? static_cast<int>(desync[j].start()) - static_cast<int>(desync[j - 1].start()) : 0;
                 if (desyncOffset < 0) desyncOffset = 0;
 
                 if ( qAbs(syncOffset - desyncOffset) <= maxDesync )
@@ -315,12 +313,12 @@ void LCS(const EventGroupList& sync, const EventGroupList& desync, DesyncGroupLi
 
     // Нахождение наибольшей общей подпоследовательности
     DesyncPositions syncAccum, desyncAccum;
-    i = 0, j = 0;
+    i = j = 0;
     while (maxLen[i][j] != 0 && i < max_i && j < max_j)
     {
-        syncOffset = i > 0 ? sync[i].start() - sync[i - 1].start() : 0;
+        syncOffset = i > 0 ? static_cast<int>(sync[i].start()) - static_cast<int>(sync[i - 1].start()) : 0;
         if (syncOffset < 0) syncOffset = 0;
-        desyncOffset = j > 0 ? desync[j].start() - desync[j - 1].start() : 0;
+        desyncOffset = j > 0 ? static_cast<int>(desync[j].start()) - static_cast<int>(desync[j - 1].start()) : 0;
         if (desyncOffset < 0) desyncOffset = 0;
 
         if ( qAbs(syncOffset - desyncOffset) <= maxDesync )
@@ -353,11 +351,10 @@ void LCS(const EventGroupList& sync, const EventGroupList& desync, DesyncGroupLi
 //
 // Подсчёт рассинхронизированных
 //
-size_t CountSyncronized(const EventGroupList& sync, const EventGroupList& desync, const int maxDesync)
+int CountSyncronized(const EventGroupList& sync, const EventGroupList& desync, const int maxDesync)
 {
-    size_t count = 0, i = 0, j = 0;
-    const size_t max_i = sync.length(),
-                 max_j = desync.length();
+    const int max_i = sync.length(), max_j = desync.length();
+    int count = 0, i = 0, j = 0;
     while (i < max_i && j < max_j)
     {
         if ( qAbs(static_cast<int>(sync[i].start()) - static_cast<int>(desync[j].start())) <= maxDesync )
@@ -387,7 +384,7 @@ void Syncronize(const EventGroupList& sync, const EventGroupList& desync, const 
     // Полная синхронизация
     if (desyncPoints.isEmpty()) return;
 
-    size_t i, j, k;
+    int i, j, k;
     // Первые синхронны
     if (desyncPoints[0].desync[0] > 0)
     {
@@ -397,11 +394,11 @@ void Syncronize(const EventGroupList& sync, const EventGroupList& desync, const 
         }
     }
 
-    size_t untilPosSync, untilPosDesync, pos, syncCount, bestSyncCount;
+    int untilPosSync, untilPosDesync, pos, syncCount, bestSyncCount;
     int shift, bestShift;
     EventGroupList tempSync, tempDesync;
     uint prevEnd = 0;
-    const size_t dpLen = desyncPoints.length();
+    const int dpLen = desyncPoints.length();
     for (i = 0; i < dpLen; ++i)
     {
         const DesyncPositions& syncPos_i = desyncPoints[i].sync;
@@ -421,9 +418,9 @@ void Syncronize(const EventGroupList& sync, const EventGroupList& desync, const 
 
         bestSyncCount = 0;
         bestShift = 0;
-        for (j = 0; j < static_cast<size_t>(syncPos_i.length()); ++j)
+        for (j = 0; j < syncPos_i.length(); ++j)
         {
-            for (k = 0; k < static_cast<size_t>(desyncPos_i.length()); ++k)
+            for (k = 0; k < desyncPos_i.length(); ++k)
             {
                 shift = static_cast<int>(sync[syncPos_i[j]].start()) - static_cast<int>(desync[desyncPos_i[k]].start());
                 if (qAbs(shift) > maxShift) continue;

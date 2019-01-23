@@ -52,14 +52,16 @@ class GraphicsEventGroupItem : public QGraphicsItemGroup
 public:
     GraphicsEventGroupItem() :
         QGraphicsItemGroup(),
-        _prev(NULL),
-        _next(NULL),
-        _eventGroup(NULL),
+        _prev(nullptr),
+        _next(nullptr),
+        _eventGroup(nullptr),
         _rect(this),
         _text(this)
     {
         this->init();
     }
+
+    ~GraphicsEventGroupItem();
 
     void setPrev(GraphicsEventGroupItem *prev)
     {
@@ -91,10 +93,10 @@ public:
     {
         _corX = QGraphicsItem::mapToItem(this, event->pos()).x();
 
-        if (NULL != _prev) _minX = _prev->x() + _prev->rect()->rect().width();
+        if (nullptr != _prev) _minX = _prev->x() + _prev->rect()->rect().width();
         else _minX = 0.0;
 
-        if (NULL != _next) _maxX = _next->x() - this->rect()->rect().width();
+        if (nullptr != _next) _maxX = _next->x() - this->rect()->rect().width();
         else _maxX = this->scene()->width() - this->rect()->rect().width();
 
         QGraphicsItemGroup::mousePressEvent(event);
@@ -136,7 +138,7 @@ public:
     void moveByX(qreal dx, bool moveNext = false)
     {
         this->moveBy(dx, 0.0);
-        if (moveNext && NULL != _next) _next->moveByX(dx, moveNext);
+        if (moveNext && nullptr != _next) _next->moveByX(dx, moveNext);
     }
 
 private:
@@ -152,6 +154,9 @@ private:
         this->addToGroup(&_text);
     }
 };
+
+// https://bugreports.qt.io/browse/QTCREATORBUG-19741
+GraphicsEventGroupItem::~GraphicsEventGroupItem() {}
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -216,18 +221,18 @@ void MainWindow::dropEvent(QDropEvent *event)
 {
     if (event->mimeData()->hasUrls())
     {
-        for (size_t i = 0; static_cast<int>(i) < event->mimeData()->urls().length() && i < 2u; ++i)
+        for (int i = 0; i < event->mimeData()->urls().length() && i < 2; ++i)
         {
             QString path = UrlToPath(event->mimeData()->urls().at(i));
             if (!path.isEmpty())
             {
                 switch (i)
                 {
-                case 0u:
+                case 0:
                     this->openFile(path, _sync);
                     break;
 
-                case 1u:
+                case 1:
                     this->openFile(path, _desync);
                     break;
 
@@ -274,7 +279,7 @@ void MainWindow::on_btAutosync_clicked()
         return;
     }
 
-    if (NULL != _result.graph) ui->graphicsView->scene()->removeItem(_result.graph);
+    if (nullptr != _result.graph) ui->graphicsView->scene()->removeItem(_result.graph);
     _result.clear();
 
     foreach (QGraphicsItem *item, _desync.items)
@@ -361,13 +366,13 @@ void MainWindow::on_btSave_clicked()
     }
     fout.close();
 
-    if (NULL != _result.graph) ui->graphicsView->scene()->removeItem(_result.graph);
+    if (nullptr != _result.graph) ui->graphicsView->scene()->removeItem(_result.graph);
     _result.clear();
 
-    if (NULL != _desync.graph) ui->graphicsView->scene()->removeItem(_desync.graph);
+    if (nullptr != _desync.graph) ui->graphicsView->scene()->removeItem(_desync.graph);
     _desync.clear();
 
-    if (NULL != _sync.graph) ui->graphicsView->scene()->removeItem(_sync.graph);
+    if (nullptr != _sync.graph) ui->graphicsView->scene()->removeItem(_sync.graph);
     _sync.clear();
 
     ui->graphicsView->setSceneRect(DEFAULT_RECT);
@@ -403,7 +408,7 @@ void MainWindow::on_btSvg_clicked()
 
 void MainWindow::openFile(const QString &fileName, FileStruct &obj)
 {
-    if (NULL != obj.graph) ui->graphicsView->scene()->removeItem(obj.graph);
+    if (nullptr != obj.graph) ui->graphicsView->scene()->removeItem(obj.graph);
     obj.clear();
 
     QFile fin(fileName);
@@ -487,19 +492,19 @@ void MainWindow::drawGraph(GraphStruct &obj, const DesyncGroupList * const highl
     scale.scale(1.0 / SCALE, 1.0);
 
     QVector<bool> hlMap;
-    if (NULL != highligted)
+    if (nullptr != highligted)
     {
         hlMap.fill(false, obj.groups.length());
         foreach (const DesyncGroup &dg, *highligted)
         {
-            foreach (const size_t pos, dg.sync)
+            foreach (const int pos, dg.sync)
             {
                 hlMap[pos] = true;
             }
         }
     }
 
-    for (size_t i = 0, len = obj.groups.length(); i < len; ++i)
+    for (int i = 0, len = obj.groups.length(); i < len; ++i)
     {
         EventGroup &eg = obj.groups[i];
 
@@ -507,7 +512,7 @@ void MainWindow::drawGraph(GraphStruct &obj, const DesyncGroupList * const highl
         item->rect()->setRect(0.0, 0.0, eg.end() - eg.start(), HEIGHT);
         item->rect()->setPen(pen);
 
-        if (NULL != highligted) item->rect()->setBrush(hlMap.at(i) ? brushHl : brushBg);
+        if (nullptr != highligted) item->rect()->setBrush(hlMap.at(i) ? brushHl : brushBg);
         else item->rect()->setBrush(brushBg);
 
         item->text()->setPlainText(QString::number(i + 1));
@@ -531,7 +536,7 @@ void MainWindow::drawGraph(GraphStruct &obj, const DesyncGroupList * const highl
 
     if (obj.connected)
     {
-        for (size_t i = 0, len = obj.items.length(); i < len; ++i)
+        for (int i = 0, len = obj.items.length(); i < len; ++i)
         {
             GraphicsEventGroupItem *item = dynamic_cast<GraphicsEventGroupItem *>(obj.items.at(i));
             if (i > 0) item->setPrev( dynamic_cast<GraphicsEventGroupItem *>(obj.items.at(i - 1)) );

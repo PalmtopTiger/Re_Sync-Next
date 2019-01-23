@@ -37,7 +37,7 @@ typedef QList<EventGroup> EventGroupList;
 //
 // Класс не совпавших групп фраз
 //
-typedef QList<size_t> DesyncPositions;
+typedef QList<int> DesyncPositions;
 
 class DesyncGroup
 {
