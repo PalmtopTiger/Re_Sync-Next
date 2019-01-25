@@ -155,7 +155,7 @@ private:
     }
 };
 
-// https://bugreports.qt.io/browse/QTCREATORBUG-19741
+//! @bug: https://bugreports.qt.io/browse/QTCREATORBUG-19741
 GraphicsEventGroupItem::~GraphicsEventGroupItem() {}
 
 
