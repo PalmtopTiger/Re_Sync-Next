@@ -31,7 +31,7 @@ public:
     {
         if (nullptr != this->graph)
         {
-            foreach (QGraphicsItem *item, this->items)
+            for (QGraphicsItem *item : qAsConst(this->items))
             {
                 this->graph->removeFromGroup(item);
                 delete item;

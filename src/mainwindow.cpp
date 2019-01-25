@@ -63,15 +63,15 @@ public:
 
     ~GraphicsEventGroupItem();
 
-    void setPrev(GraphicsEventGroupItem *prev)
+    void setPrev(GraphicsEventGroupItem * const prev)
     {
         _prev = prev;
     }
-    void setNext(GraphicsEventGroupItem *next)
+    void setNext(GraphicsEventGroupItem * const next)
     {
         _next = next;
     }
-    void setEventGroup(EventGroup *eventGroup)
+    void setEventGroup(EventGroup * const eventGroup)
     {
         _eventGroup = eventGroup;
     }
@@ -128,14 +128,14 @@ public:
         _text.setCursor(cursor);
     }
 
-    void setMovable(bool enabled)
+    void setMovable(const bool enabled)
     {
         //QGraphicsItem::ItemIsSelectable
         if (enabled) this->setFlags(this->flags() | QGraphicsItem::ItemIsMovable);
         else this->setFlags(this->flags() & ~QGraphicsItem::ItemIsMovable);
     }
 
-    void moveByX(qreal dx, bool moveNext = false)
+    void moveByX(const qreal dx, const bool moveNext = false)
     {
         this->moveBy(dx, 0.0);
         if (moveNext && nullptr != _next) _next->moveByX(dx, moveNext);
@@ -194,7 +194,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->move(QApplication::desktop()->screenGeometry().center() - this->rect().center());
 
-    ui->graphicsView->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     ui->graphicsView->scale(SCALE, 1.0);
     ui->graphicsView->setScene(new QGraphicsScene());
     ui->graphicsView->setSceneRect(DEFAULT_RECT);
@@ -223,22 +222,11 @@ void MainWindow::dropEvent(QDropEvent *event)
     {
         for (int i = 0; i < event->mimeData()->urls().length() && i < 2; ++i)
         {
-            QString path = UrlToPath(event->mimeData()->urls().at(i));
+            const QString path = UrlToPath(event->mimeData()->urls().at(i));
             if (!path.isEmpty())
             {
-                switch (i)
-                {
-                case 0:
-                    this->openFile(path, _sync);
-                    break;
-
-                case 1:
-                    this->openFile(path, _desync);
-                    break;
-
-                default:
-                    break;
-                }
+                if (i) this->openFile(path, _desync);
+                else   this->openFile(path, _sync);
             }
         }
         event->acceptProposedAction();
@@ -247,10 +235,10 @@ void MainWindow::dropEvent(QDropEvent *event)
 
 void MainWindow::on_btOpenSynced_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this,
-                                                    "Выберите файл",
-                                                    _settings.value(DEFAULT_DIR_KEY).toString(),
-                                                    FILETYPES_FILTER);
+    const QString fileName = QFileDialog::getOpenFileName(this,
+                                                          "Выберите файл",
+                                                          _settings.value(DEFAULT_DIR_KEY).toString(),
+                                                          FILETYPES_FILTER);
 
     if (fileName.isEmpty()) return;
     _settings.setValue(DEFAULT_DIR_KEY, QFileInfo(fileName).absolutePath());
@@ -260,10 +248,10 @@ void MainWindow::on_btOpenSynced_clicked()
 
 void MainWindow::on_btOpenDesynced_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this,
-                                                    "Выберите файл",
-                                                    _settings.value(DEFAULT_DIR_KEY).toString(),
-                                                    FILETYPES_FILTER);
+    const QString fileName = QFileDialog::getOpenFileName(this,
+                                                          "Выберите файл",
+                                                          _settings.value(DEFAULT_DIR_KEY).toString(),
+                                                          FILETYPES_FILTER);
 
     if (fileName.isEmpty()) return;
     _settings.setValue(DEFAULT_DIR_KEY, QFileInfo(fileName).absolutePath());
@@ -282,9 +270,9 @@ void MainWindow::on_btAutosync_clicked()
     if (nullptr != _result.graph) ui->graphicsView->scene()->removeItem(_result.graph);
     _result.clear();
 
-    foreach (QGraphicsItem *item, _desync.items)
+    for (QGraphicsItem * const item : qAsConst(_desync.items))
     {
-        GraphicsEventGroupItem *egItem = dynamic_cast<GraphicsEventGroupItem *>(item);
+        GraphicsEventGroupItem * const egItem = dynamic_cast<GraphicsEventGroupItem *>(item);
         egItem->eventGroup()->shift( static_cast<int>(egItem->x()) - static_cast<int>(egItem->eventGroup()->start()) );
         //egItem->eventGroup()->applyShift(); // Портит саб, если вызывать тут
     }
@@ -309,16 +297,16 @@ void MainWindow::on_btSave_clicked()
         return;
     }
 
-    QFileInfo fileInfo(_desync.fileName);
-    QString fileName = QFileDialog::getSaveFileName(this,
-                                                    "Выберите файл",
-                                                    QDir(fileInfo.path() + "/" + fileInfo.baseName() + ".new." + fileInfo.completeSuffix()).path(),
-                                                    FILETYPES_FILTER);
+    const QFileInfo fileInfo(_desync.fileName);
+    const QString fileName = QFileDialog::getSaveFileName(this,
+                                                          "Выберите файл",
+                                                          QDir(fileInfo.path() + "/" + fileInfo.baseName() + ".sync." + fileInfo.completeSuffix()).path(),
+                                                          FILETYPES_FILTER);
 
     if (fileName.isEmpty()) return;
 
     // Применение результатов
-    foreach (EventGroup eg, _result.groups) eg.applyShift();
+    for (EventGroup& eg : _result.groups) eg.applyShift();
 
     QFile fout(fileName);
     if ( !fout.open(QFile::WriteOnly | QFile::Text) )
@@ -386,11 +374,11 @@ void MainWindow::on_btSave_clicked()
 
 void MainWindow::on_btSvg_clicked()
 {
-    QFileInfo fileInfo(_desync.fileName);
-    QString fileName = QFileDialog::getSaveFileName(this,
-                                                    "Выберите файл",
-                                                    QDir(fileInfo.path() + "/" + fileInfo.baseName() + ".svg").path(),
-                                                    "Scalable Vector Graphics (*.svg)");
+    const QFileInfo fileInfo(_desync.fileName);
+    const QString fileName = QFileDialog::getSaveFileName(this,
+                                                          "Выберите файл",
+                                                          QDir(fileInfo.path() + "/" + fileInfo.baseName() + ".svg").path(),
+                                                          "Scalable Vector Graphics (*.svg)");
 
     if (fileName.isEmpty()) return;
 
@@ -451,7 +439,7 @@ void MainWindow::openFile(const QString &fileName, FileStruct &obj)
     fin.close();
 
     obj.fileName = fileName;
-    QFileInfo fileInfo(fileName);
+    const QFileInfo fileInfo(fileName);
     switch (obj.position)
     {
     case 0u:
@@ -488,7 +476,7 @@ void MainWindow::drawGraph(GraphStruct &obj, const DesyncGroupList * const highl
     const qreal HEIGHT = 50.0, SCALE = 0.002;
     QPen pen(obj.borderColor, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     pen.setCosmetic(true);
-    QBrush brushBg(obj.bgColor), brushHl(obj.hlColor);
+    const QBrush brushBg(obj.bgColor), brushHl(obj.hlColor);
     QTransform scale;
     scale.scale(1.0 / SCALE, 1.0);
 
@@ -496,9 +484,9 @@ void MainWindow::drawGraph(GraphStruct &obj, const DesyncGroupList * const highl
     if (nullptr != highligted)
     {
         hlMap.fill(false, obj.groups.length());
-        foreach (const DesyncGroup &dg, *highligted)
+        for (const DesyncGroup &dg : *highligted)
         {
-            foreach (const int pos, dg.sync)
+            for (const int pos : dg.sync)
             {
                 hlMap[pos] = true;
             }
@@ -509,7 +497,7 @@ void MainWindow::drawGraph(GraphStruct &obj, const DesyncGroupList * const highl
     {
         EventGroup &eg = obj.groups[i];
 
-        GraphicsEventGroupItem *item = new GraphicsEventGroupItem();
+        GraphicsEventGroupItem * const item = new GraphicsEventGroupItem();
         item->rect()->setRect(0.0, 0.0, eg.end() - eg.start(), HEIGHT);
         item->rect()->setPen(pen);
 
@@ -539,7 +527,7 @@ void MainWindow::drawGraph(GraphStruct &obj, const DesyncGroupList * const highl
     {
         for (int i = 0, len = obj.items.length(); i < len; ++i)
         {
-            GraphicsEventGroupItem *item = dynamic_cast<GraphicsEventGroupItem *>(obj.items.at(i));
+            GraphicsEventGroupItem * const item = dynamic_cast<GraphicsEventGroupItem *>(obj.items.at(i));
             if (i > 0) item->setPrev( dynamic_cast<GraphicsEventGroupItem *>(obj.items.at(i - 1)) );
             if (i < len - 1) item->setNext( dynamic_cast<GraphicsEventGroupItem *>(obj.items.at(i + 1)) );
         }
@@ -559,7 +547,7 @@ void MainWindow::drawGraph(GraphStruct &obj, const DesyncGroupList * const highl
 
 QString UrlToPath(const QUrl &url)
 {
-    QString path = url.toLocalFile();
+    const QString path = url.toLocalFile();
 
     if (!path.isEmpty() && FILETYPES.contains(QFileInfo(path).suffix(), Qt::CaseInsensitive))
     {

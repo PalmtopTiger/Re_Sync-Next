@@ -44,7 +44,7 @@ void EventGroup::applyShift()
 {
     int temp;
 
-    foreach (Script::Line::Event* const e, _events)
+    for (Script::Line::Event* const e : qAsConst(_events))
     {
         temp = static_cast<int>(e->start) + _shift;
         if (temp < 0) temp = 0;
@@ -134,7 +134,7 @@ inline bool IsComment(const QString &text)
             << "караоке"
             << "коммент";
 
-    foreach (const QString& pattern, patterns)
+    for (const QString& pattern : patterns)
     {
         if (text.contains(pattern, Qt::CaseInsensitive)) return true;
     }
@@ -175,15 +175,15 @@ inline bool IsLyrics(const QString &style)
             << "lyric"
             << "type";
 
-    foreach (const QString& begin, begins)
+    for (const QString& begin : begins)
     {
         if (style.startsWith(begin, Qt::CaseInsensitive)) return true;
     }
-    foreach (const QString& end, ends)
+    for (const QString& end : ends)
     {
         if (style.endsWith(end, Qt::CaseInsensitive)) return true;
     }
-    foreach (const QString& mid, middle)
+    for (const QString& mid : middle)
     {
         if (style.contains(mid, Qt::CaseInsensitive)) return true;
     }
@@ -194,10 +194,8 @@ inline bool IsLyrics(const QString &style)
 //
 // Объединение фраз в группы
 //
-void GroupEvents(const EventPtrList& constEvents, EventGroupList& groups, const int minDuration, const int maxOffset, const bool skipComments, const bool skipLyrics)
+void GroupEvents(EventPtrList events, EventGroupList& groups, const int minDuration, const int maxOffset, const bool skipComments, const bool skipLyrics)
 {
-    EventPtrList events(constEvents);
-
     // Сортировка по времени
     qSort(events.begin(), events.end(), SortByTime);
 
@@ -207,7 +205,7 @@ void GroupEvents(const EventPtrList& constEvents, EventGroupList& groups, const 
             curStart = 0,
             curEnd = 0;
     bool hasGroups = false;
-    foreach (Script::Line::Event* const e, events)
+    for (Script::Line::Event* const e : qAsConst(events))
     {
         // Уже есть отброшенные и новая фраза отстоит от предыдущей дальше первой
         if ( !dropAccum.isEmpty() && static_cast<int>(e->start) - static_cast<int>(prevEnd) > firstDropOffset && hasGroups )
