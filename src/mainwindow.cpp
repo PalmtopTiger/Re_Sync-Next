@@ -37,7 +37,7 @@ QString UrlToPath(const QUrl &url);
 const qreal HEIGHT = 50.0, SCALE = 0.002;
 const QRectF DEFAULT_RECT(0.0, 0.0, 1.0, HEIGHT * 3.0 + 20.0);
 const QStringList FILETYPES = QStringList() << "ass" << "ssa" << "srt";
-const QString FILETYPES_FILTER = "Субтитры (*." + FILETYPES.join(" *.") + ")";
+const QString FILETYPES_FILTER  = "Субтитры (*." + FILETYPES.join(" *.") + ")";
 const QString DEFAULT_DIR_KEY   = "DefaultDir",
               MIN_DURATION_KEY  = "MinDuration",
               MAX_OFFSET_KEY    = "MaxOffset",
@@ -213,7 +213,18 @@ MainWindow::~MainWindow()
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (event->mimeData()->hasUrls()) event->acceptProposedAction();
+    if (event->mimeData()->hasUrls())
+    {
+        const QList<QUrl> urls = event->mimeData()->urls();
+        for (const QUrl &url : urls)
+        {
+            if (!UrlToPath(url).isEmpty())
+            {
+                event->acceptProposedAction();
+                return;
+            }
+        }
+    }
 }
 
 void MainWindow::dropEvent(QDropEvent *event)
