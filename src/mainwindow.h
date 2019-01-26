@@ -4,6 +4,7 @@
 #include "logic.h"
 #include <QMainWindow>
 #include <QSettings>
+#include <QFileInfo>
 #include <QGraphicsItem>
 
 
@@ -53,7 +54,7 @@ public:
         scriptType(Script::SCR_UNKNOWN)
     {}
 
-    QString fileName;
+    QFileInfo fileInfo;
     Script::Script script;
     Script::ScriptType scriptType;
 
@@ -62,7 +63,6 @@ public:
         dynamic_cast<GraphStruct *>(this)->clear();
 
         this->script.clear();
-        this->fileName.clear();
         scriptType = Script::SCR_UNKNOWN;
     }
 };
