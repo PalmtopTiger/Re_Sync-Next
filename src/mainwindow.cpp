@@ -555,12 +555,11 @@ void MainWindow::drawGraph(GraphStruct &obj, const DesyncGroupList * const highl
 
 QString UrlToPath(const QUrl &url)
 {
-    const QString path = url.toLocalFile();
-
-    if (!path.isEmpty() && FILETYPES.contains(QFileInfo(path).suffix(), Qt::CaseInsensitive))
-    {
-        return path;
+    if (url.isLocalFile()) {
+        const QString path = url.toLocalFile();
+        if (FILETYPES.contains(QFileInfo(path).suffix(), Qt::CaseInsensitive)) {
+            return path;
+        }
     }
-
     return QString::null;
 }
