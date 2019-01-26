@@ -36,7 +36,7 @@ QString UrlToPath(const QUrl &url);
 
 const qreal HEIGHT = 50.0, SCALE = 0.002;
 const QRectF DEFAULT_RECT(0.0, 0.0, 1.0, HEIGHT * 3.0 + 20.0);
-const QStringList FILETYPES = QStringList() << "ass" << "ssa" << "srt";
+const QStringList FILETYPES = {"ass", "ssa", "srt"};
 const QString FILETYPES_FILTER  = "Субтитры (*." + FILETYPES.join(" *.") + ")";
 const QString DEFAULT_DIR_KEY   = "DefaultDir",
               MIN_DURATION_KEY  = "MinDuration",

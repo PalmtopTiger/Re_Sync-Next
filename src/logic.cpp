@@ -98,41 +98,42 @@ bool SortByTime(const Script::Line::Event* const s1, const Script::Line::Event* 
 //
 inline bool IsComment(const QString &text)
 {
-    const QStringList patterns = QStringList()
-            << "\\pos"
+    const QStringList patterns = {
+        "\\pos",
 
-            << "translated"
-            << "translator"
-            << "translation"
-            << "timed"
-            << "timer"
-            << "timing"
-            << "typesetted"
-            << "typesetter"
-            << "typesetting"
-            << "encoded"
-            << "encoder"
-            << "encoding"
-            << "styled"
-            << "styler"
-            << "styling"
-            << "karaoke"
-            << "qc"
-            << "note"
+        "translated",
+        "translator",
+        "translation",
+        "timed",
+        "timer",
+        "timing",
+        "typesetted",
+        "typesetter",
+        "typesetting",
+        "encoded",
+        "encoder",
+        "encoding",
+        "styled",
+        "styler",
+        "styling",
+        "karaoke",
+        "qc",
+        "note",
 
-            << "перевод"
-            << "тайминг"
-            << "стайлинг"
-            << "тайпсет"
-            << "энкод"
-            << "кодирование"
-            << "оформление"
-            << "редактор"
-            << "редактирование"
-            << "редактура"
-            << "редакция"
-            << "караоке"
-            << "коммент";
+        "перевод",
+        "тайминг",
+        "стайлинг",
+        "тайпсет",
+        "энкод",
+        "кодирование",
+        "оформление",
+        "редактор",
+        "редактирование",
+        "редактура",
+        "редакция",
+        "караоке",
+        "коммент"
+    };
 
     for (const QString& pattern : patterns)
     {
@@ -144,36 +145,39 @@ inline bool IsComment(const QString &text)
 
 inline bool IsLyrics(const QString &style)
 {
-    const QStringList begins = QStringList()
-            << "op"
-            << "ed"
-            << "end";
-    const QStringList ends = QStringList()
-            << "op"
-            << "ed"
-            << "rom"
-            << "kar"
-            << "kan";
-    const QStringList middle = QStringList()
-            << "rus"
-            << "eng"
-            << "jap"
-            << "kara"
-            << "romaji"
-            << "kanji"
-            << "title"
-            << "comment"
-            << "sign"
-            << "note"
-            << "logo"
-            << "insert"
-            << "copyright"
-            << "name"
-            << "credit"
-            << "staff"
-            << "song"
-            << "lyric"
-            << "type";
+    const QStringList begins = {
+        "op",
+        "ed",
+        "end"
+    };
+    const QStringList ends = {
+        "op",
+        "ed",
+        "rom",
+        "kar",
+        "kan"
+    };
+    const QStringList middle = {
+        "rus",
+        "eng",
+        "jap",
+        "kara",
+        "romaji",
+        "kanji",
+        "title",
+        "comment",
+        "sign",
+        "note",
+        "logo",
+        "insert",
+        "copyright",
+        "name",
+        "credit",
+        "staff",
+        "song",
+        "lyric",
+        "type"
+    };
 
     for (const QString& begin : begins)
     {
