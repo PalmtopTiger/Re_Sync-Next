@@ -373,6 +373,7 @@ void MainWindow::on_btSave_clicked()
     if (nullptr != _sync.graph) ui->graphicsView->scene()->removeItem(_sync.graph);
     _sync.clear();
 
+    ui->graphicsView->setEnabled(false);
     ui->graphicsView->setSceneRect(DEFAULT_RECT);
 
     ui->btSave->setEnabled(false);
@@ -448,19 +449,10 @@ void MainWindow::openFile(const QString &fileName, FileStruct &obj)
     fin.close();
 
     obj.fileInfo.setFile(fileName);
-    switch (obj.position)
-    {
-    case 0u:
-        ui->btOpenSynced->setText(obj.fileInfo.fileName());
-        break;
-
-    case 1u:
+    if (obj.position)
         ui->btOpenDesynced->setText(obj.fileInfo.fileName());
-        break;
-
-    default:
-        break;
-    }
+    else
+        ui->btOpenSynced->setText(obj.fileInfo.fileName());
 
     // Группировка
     GroupEvents(obj.script.events.content,
@@ -471,6 +463,7 @@ void MainWindow::openFile(const QString &fileName, FileStruct &obj)
                 ui->chbSkipLyrics->isChecked());
 
     this->drawGraph(obj);
+    ui->graphicsView->setEnabled(true);
 
     _openState |= 1u << obj.position;
     ui->btAutosync->setEnabled(0b11u == _openState);

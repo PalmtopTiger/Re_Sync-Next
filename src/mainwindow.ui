@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>602</width>
+    <width>606</width>
     <height>399</height>
    </rect>
   </property>
@@ -20,6 +20,9 @@
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <widget class="QGraphicsView" name="graphicsView">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="minimumSize">
        <size>
         <width>0</width>
