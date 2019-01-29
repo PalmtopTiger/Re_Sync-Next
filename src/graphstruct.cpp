@@ -1,7 +1,4 @@
 /*******************************************************************************
- * Re_Sync:
- * Synchronize subtitles with the video using the timing of other subtitles.
- *
  * This file is part of Re_Sync Next.
  *
  * Copyright (C) 2011-2019  Andrey Efremov <duxus@yandex.ru>
@@ -20,20 +17,46 @@
  * along with Re_Sync.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-#include "mainwindow.h"
-#include <QApplication>
+#include "graphstruct.h"
 
+//
+// Класс графика
+//
+GraphStruct::GraphStruct() :
+    position(0u),
+    connected(false),
+    graph(nullptr)
+{}
 
-int main(int argc, char *argv[])
+void GraphStruct::clear()
 {
-    QApplication a(argc, argv);
-    a.setApplicationName("Re_Sync");
-    a.setApplicationVersion("2.0");
-    a.setOrganizationName("Unlimited Web Works");
-    a.setWindowIcon(QIcon(":/main.ico"));
+    if (nullptr != this->graph)
+    {
+        for (QGraphicsItem *item : qAsConst(this->items))
+        {
+            this->graph->removeFromGroup(item);
+            delete item;
+        }
+        this->items.clear();
 
-    MainWindow w;
-    w.show();
-    
-    return a.exec();
+        delete this->graph;
+        this->graph = nullptr;
+    }
+
+    this->groups.clear();
+}
+
+//
+// Класс файла
+//
+FileStruct::FileStruct() :
+    scriptType(Script::SCR_UNKNOWN)
+{}
+
+void FileStruct::clear()
+{
+    GraphStruct::clear();
+
+    this->script.clear();
+    scriptType = Script::SCR_UNKNOWN;
 }

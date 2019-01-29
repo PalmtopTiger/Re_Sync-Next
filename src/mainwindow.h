@@ -1,71 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "logic.h"
+#include "graphstruct.h"
 #include <QMainWindow>
 #include <QSettings>
-#include <QFileInfo>
-#include <QGraphicsItem>
 
-
-class GraphStruct
-{
-public:
-    GraphStruct() :
-        position(0u),
-        connected(false),
-        graph(nullptr)
-    {}
-
-    uint position;
-    bool connected;
-    QString title;
-    QColor borderColor;
-    QColor bgColor;
-    QColor hlColor;
-
-    EventGroupList groups;
-    QList<QGraphicsItem *> items;
-    QGraphicsItemGroup *graph;
-
-    void clear()
-    {
-        if (nullptr != this->graph)
-        {
-            for (QGraphicsItem *item : qAsConst(this->items))
-            {
-                this->graph->removeFromGroup(item);
-                delete item;
-            }
-            this->items.clear();
-
-            delete this->graph;
-            this->graph = nullptr;
-        }
-
-        this->groups.clear();
-    }
-};
-
-class FileStruct : public GraphStruct
-{
-public:
-    FileStruct() :
-        scriptType(Script::SCR_UNKNOWN)
-    {}
-
-    QFileInfo fileInfo;
-    Script::Script script;
-    Script::ScriptType scriptType;
-
-    void clear()
-    {
-        dynamic_cast<GraphStruct *>(this)->clear();
-
-        this->script.clear();
-        scriptType = Script::SCR_UNKNOWN;
-    }
-};
 
 namespace Ui {
 class MainWindow;

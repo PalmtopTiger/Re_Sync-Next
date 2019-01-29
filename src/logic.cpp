@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of Re_Sync Next.
  *
- * Copyright (C) 2011-2013  Andrey Efremov <duxus@yandex.ru>
+ * Copyright (C) 2011-2019  Andrey Efremov <duxus@yandex.ru>
  *
  * Re_Sync is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,52 +19,6 @@
 
 #include "logic.h"
 #include <QVector>
-
-
-uint EventGroup::start() const
-{
-    int ret = static_cast<int>(_start) + _shift;
-    if (ret < 0) ret = 0;
-    return static_cast<uint>(ret);
-}
-
-uint EventGroup::end() const
-{
-    int ret = static_cast<int>(_end) + _shift;
-    if (ret < 0) ret = 0;
-    return static_cast<uint>(ret);
-}
-
-void EventGroup::shift(const int shift)
-{
-    _shift = shift;
-}
-
-void EventGroup::applyShift()
-{
-    int temp;
-
-    for (Script::Line::Event* const e : qAsConst(_events))
-    {
-        temp = static_cast<int>(e->start) + _shift;
-        if (temp < 0) temp = 0;
-        e->start = static_cast<uint>(temp);
-
-        temp = static_cast<int>(e->end) + _shift;
-        if (temp < 0) temp = 0;
-        e->end = static_cast<uint>(temp);
-    }
-
-    temp = static_cast<int>(_start) + _shift;
-    if (temp < 0) temp = 0;
-    _start = static_cast<uint>(temp);
-
-    temp = static_cast<int>(_end) + _shift;
-    if (temp < 0) temp = 0;
-    _end = static_cast<uint>(temp);
-
-    _shift = 0;
-}
 
 //
 // Функция для сортировки по времени

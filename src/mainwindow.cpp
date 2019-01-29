@@ -1,7 +1,7 @@
 /*******************************************************************************
  * This file is part of Re_Sync Next.
  *
- * Copyright (C) 2011-2013  Andrey Efremov <duxus@yandex.ru>
+ * Copyright (C) 2011-2019  Andrey Efremov <duxus@yandex.ru>
  *
  * Re_Sync is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "script.h"
+#include "eventgroup.h"
+#include "qgraphicseventgroup.h"
+#include "logic.h"
 #include <QDesktopWidget>
-#include <QGraphicsSceneMouseEvent>
 #include <QDragEnterEvent>
 #include <QUrl>
 #include <QSettings>
@@ -45,118 +47,6 @@ const QString FILETYPES_FILTER  = QString("Субтитры (*.%1)").arg(FILETYP
               MAX_SHIFT_KEY     = "MaxShift",
               SKIP_COMMENTS_KEY = "SkipComments",
               SKIP_LYRICS_KEY   = "SkipLyrics";
-
-
-class GraphicsEventGroupItem : public QGraphicsItemGroup
-{
-public:
-    GraphicsEventGroupItem() :
-        QGraphicsItemGroup(),
-        _prev(nullptr),
-        _next(nullptr),
-        _eventGroup(nullptr),
-        _rect(this),
-        _text(this)
-    {
-        this->init();
-    }
-
-    ~GraphicsEventGroupItem();
-
-    void setPrev(GraphicsEventGroupItem * const prev)
-    {
-        _prev = prev;
-    }
-    void setNext(GraphicsEventGroupItem * const next)
-    {
-        _next = next;
-    }
-    void setEventGroup(EventGroup * const eventGroup)
-    {
-        _eventGroup = eventGroup;
-    }
-
-    QGraphicsRectItem *rect()
-    {
-        return &_rect;
-    }
-    QGraphicsTextItem *text()
-    {
-        return &_text;
-    }
-    EventGroup *eventGroup()
-    {
-        return _eventGroup;
-    }
-
-    void mousePressEvent(QGraphicsSceneMouseEvent *event)
-    {
-        _corX = QGraphicsItem::mapToItem(this, event->pos()).x();
-
-        if (nullptr != _prev) _minX = _prev->x() + _prev->rect()->rect().width();
-        else _minX = 0.0;
-
-        if (nullptr != _next) _maxX = _next->x() - this->rect()->rect().width();
-        else _maxX = this->scene()->width() - this->rect()->rect().width();
-
-        QGraphicsItemGroup::mousePressEvent(event);
-    }
-
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-    {
-        static qreal dx;
-        dx = qMax(_minX - this->x(), QGraphicsItem::mapToItem(this, event->pos()).x() - _corX);
-        if (event->buttons() & Qt::LeftButton)
-        {
-            this->moveByX(dx, true);
-        }
-        else
-        {
-            dx = qMin(_maxX - this->x(), dx);
-            this->moveByX(dx, false);
-        }
-    }
-
-    void setToolTip(const QString &toolTip)
-    {
-        _rect.setToolTip(toolTip);
-        _text.setToolTip(toolTip);
-    }
-    void setCursor(const QCursor &cursor)
-    {
-        _rect.setCursor(cursor);
-        _text.setCursor(cursor);
-    }
-
-    void setMovable(const bool enabled)
-    {
-        //QGraphicsItem::ItemIsSelectable
-        if (enabled) this->setFlags(this->flags() | QGraphicsItem::ItemIsMovable);
-        else this->setFlags(this->flags() & ~QGraphicsItem::ItemIsMovable);
-    }
-
-    void moveByX(const qreal dx, const bool moveNext = false)
-    {
-        this->moveBy(dx, 0.0);
-        if (moveNext && nullptr != _next) _next->moveByX(dx, moveNext);
-    }
-
-private:
-    GraphicsEventGroupItem *_prev, *_next;
-    EventGroup *_eventGroup;
-    QGraphicsRectItem _rect;
-    QGraphicsTextItem _text;
-    qreal _corX, _minX, _maxX;
-
-    void init()
-    {
-        this->addToGroup(&_rect);
-        this->addToGroup(&_text);
-    }
-};
-
-//! @bug: https://bugreports.qt.io/browse/QTCREATORBUG-19741
-GraphicsEventGroupItem::~GraphicsEventGroupItem() {}
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -283,7 +173,7 @@ void MainWindow::on_btAutosync_clicked()
 
     for (QGraphicsItem * const item : qAsConst(_desync.items))
     {
-        GraphicsEventGroupItem * const egItem = dynamic_cast<GraphicsEventGroupItem *>(item);
+        QGraphicsEventGroup * const egItem = dynamic_cast<QGraphicsEventGroup *>(item);
         egItem->eventGroup()->shift( static_cast<int>(egItem->x()) - static_cast<int>(egItem->eventGroup()->start()) );
         //egItem->eventGroup()->applyShift(); // Портит саб, если вызывать тут
     }
@@ -498,13 +388,10 @@ void MainWindow::drawGraph(GraphStruct &obj, const DesyncGroupList * const highl
     {
         EventGroup &eg = obj.groups[i];
 
-        GraphicsEventGroupItem * const item = new GraphicsEventGroupItem();
+        QGraphicsEventGroup * const item = new QGraphicsEventGroup();
         item->rect()->setRect(0.0, 0.0, eg.end() - eg.start(), HEIGHT);
         item->rect()->setPen(pen);
-
-        if (nullptr != highligted) item->rect()->setBrush(hlMap.at(i) ? brushHl : brushBg);
-        else item->rect()->setBrush(brushBg);
-
+        item->rect()->setBrush(nullptr != highligted && hlMap.at(i) ? brushHl : brushBg);
         item->text()->setPlainText(QString::number(i + 1));
         item->text()->setTransform(scale);
         item->setPos(eg.start(), 0.0);
@@ -528,9 +415,9 @@ void MainWindow::drawGraph(GraphStruct &obj, const DesyncGroupList * const highl
     {
         for (int i = 0, len = obj.items.length(); i < len; ++i)
         {
-            GraphicsEventGroupItem * const item = dynamic_cast<GraphicsEventGroupItem *>(obj.items.at(i));
-            if (i > 0) item->setPrev( dynamic_cast<GraphicsEventGroupItem *>(obj.items.at(i - 1)) );
-            if (i < len - 1) item->setNext( dynamic_cast<GraphicsEventGroupItem *>(obj.items.at(i + 1)) );
+            QGraphicsEventGroup * const item = dynamic_cast<QGraphicsEventGroup *>(obj.items.at(i));
+            if (i > 0) item->setPrev( dynamic_cast<QGraphicsEventGroup *>(obj.items.at(i - 1)) );
+            if (i < len - 1) item->setNext( dynamic_cast<QGraphicsEventGroup *>(obj.items.at(i + 1)) );
         }
     }
 

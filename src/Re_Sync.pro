@@ -12,12 +12,18 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     script.cpp \
-    logic.cpp
+    logic.cpp \
+    qgraphicseventgroup.cpp \
+    eventgroup.cpp \
+    graphstruct.cpp
 
 HEADERS += \
     mainwindow.h \
     script.h \
-    logic.h
+    logic.h \
+    qgraphicseventgroup.h \
+    eventgroup.h \
+    graphstruct.h
 
 FORMS += mainwindow.ui
 
