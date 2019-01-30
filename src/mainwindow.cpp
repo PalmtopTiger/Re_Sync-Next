@@ -221,30 +221,15 @@ void MainWindow::on_btSave_clicked()
     switch (_desync.scriptType)
     {
     case Script::SCR_SSA:
-        if ( !Script::GenerateSSA(out, _desync.script) )
-        {
-            QMessageBox::critical(this, "Ошибка", QString("Ошибка вывода файла в формате SSA"));
-            fout.close();
-            return;
-        }
+        Script::GenerateSSA(out, _desync.script);
         break;
 
     case Script::SCR_ASS:
-        if ( !Script::GenerateASS(out, _desync.script) )
-        {
-            QMessageBox::critical(this, "Ошибка", QString("Ошибка вывода файла в формате ASS"));
-            fout.close();
-            return;
-        }
+        Script::GenerateASS(out, _desync.script);
         break;
 
     case Script::SCR_SRT:
-        if ( !Script::GenerateSRT(out, _desync.script) )
-        {
-            QMessageBox::critical(this, "Ошибка", QString("Ошибка вывода файла в формате SRT"));
-            fout.close();
-            return;
-        }
+        Script::GenerateSRT(out, _desync.script);
         break;
 
     default:
